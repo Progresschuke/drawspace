@@ -20,229 +20,137 @@ class _DrawingHomePageState extends ConsumerState<DrawingHomePage> {
     final canvaState = ref.watch(canvasProvider);
     CanvasTools selectedTool = canvaState.selectedCanvasTool;
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text('DrawSpace'),
-      //   centerTitle: true,
-      //   forceMaterialTransparency: true,
-      // ),
       backgroundColor: AppColors.white,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
             final double width = constraints.maxWidth;
+            toolbar(
+              EdgeInsetsGeometry padding,
+              BoxDecoration decoration,
+              double bottom,
+              double left,
+              double right,
+            ) => Positioned(
+              bottom: bottom,
+              left: left,
+              right: right,
+              child: Container(
+                padding: padding,
+                decoration: decoration,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: CanvasTools.values.map((tool) {
+                    return GestureDetector(
+                      onTap: () async {
+                        ref
+                            .read(canvasProvider.notifier)
+                            .updateCanvasToolSettings(canvasTool: tool);
+                        switch (tool) {
+                          case CanvasTools.brush:
+                            if (canvaState.selectedCanvasTool == tool) {
+                              await PopUps.showBrushPopUp(context: context);
+                            } else {
+                              ref
+                                  .read(canvasProvider.notifier)
+                                  .updateBrushSettings(
+                                    color: canvaState.selectedBrush.color,
+                                    strokeWidth:
+                                        canvaState.selectedBrush.strokeWidth,
+                                  );
+                            }
+                            ref
+                                .read(canvasProvider.notifier)
+                                .updateCanvasSketchMode(
+                                  sketchMode: CanvasSketchMode.draw,
+                                );
+                            break;
+                          case CanvasTools.eraser:
+                            if (canvaState.selectedCanvasTool == tool) {
+                              await PopUps.showEraserPopUp(context: context);
+                            }
+                            ref
+                                .read(canvasProvider.notifier)
+                                .updateCanvasSketchMode(
+                                  sketchMode: CanvasSketchMode.draw,
+                                );
+                            break;
+                          case CanvasTools.line:
+                            ref
+                                .read(canvasProvider.notifier)
+                                .updateCanvasSketchMode(
+                                  sketchMode: CanvasSketchMode.line,
+                                );
+                            break;
+                          case CanvasTools.rect:
+                            ref
+                                .read(canvasProvider.notifier)
+                                .updateCanvasSketchMode(
+                                  sketchMode: CanvasSketchMode.rect,
+                                );
+                            break;
+                          case CanvasTools.undo:
+                            ref.read(canvasProvider.notifier).undoSketch();
+                            break;
+                          case CanvasTools.redo:
+                            ref.read(canvasProvider.notifier).redoSketch();
+                            break;
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: selectedTool == tool
+                              ? AppColors.blueAccent
+                              : AppColors.transparent,
+                        ),
+                        child: Icon(
+                          tool.icon,
+                          color: AppColors.white,
+                          size: 28,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            );
+
             if (width < 500) {
               return Stack(
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     width: double.infinity,
                     height: double.infinity,
                     child: DrawingCanvas(),
                   ),
-
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      color: AppColors.darkGrey,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: CanvasTools.values.map((tool) {
-                          return GestureDetector(
-                            onTap: () async {
-                              ref
-                                  .read(canvasProvider.notifier)
-                                  .updateCanvasToolSettings(canvasTool: tool);
-
-                              switch (tool) {
-                                case CanvasTools.brush:
-                                  if (canvaState.selectedCanvasTool == tool) {
-                                    await PopUps.showBrushPopUp(
-                                      context: context,
-                                    );
-                                  } else {
-                                    ref
-                                        .read(canvasProvider.notifier)
-                                        .updateBrushSettings(
-                                          color: canvaState.selectedBrush.color,
-                                          strokeWidth: canvaState
-                                              .selectedBrush
-                                              .strokeWidth,
-                                        );
-                                  }
-
-                                  ref
-                                      .read(canvasProvider.notifier)
-                                      .updateCanvasSketchMode(
-                                        sketchMode: CanvasSketchMode.draw,
-                                      );
-
-                                  break;
-                                case CanvasTools.eraser:
-                                  if (canvaState.selectedCanvasTool == tool) {
-                                    await PopUps.showEraserPopUp(
-                                      context: context,
-                                    );
-                                  }
-                                  ref
-                                      .read(canvasProvider.notifier)
-                                      .updateCanvasSketchMode(
-                                        sketchMode: CanvasSketchMode.draw,
-                                      );
-                                  break;
-                                case CanvasTools.line:
-                                  ref
-                                      .read(canvasProvider.notifier)
-                                      .updateCanvasSketchMode(
-                                        sketchMode: CanvasSketchMode.line,
-                                      );
-                                  break;
-                                case CanvasTools.rect:
-                                  ref
-                                      .read(canvasProvider.notifier)
-                                      .updateCanvasSketchMode(
-                                        sketchMode: CanvasSketchMode.rect,
-                                      );
-                                  break;
-                                case CanvasTools.undo:
-                                  ref
-                                      .read(canvasProvider.notifier)
-                                      .undoSketch();
-                                  break;
-                                case CanvasTools.redo:
-                                  ref
-                                      .read(canvasProvider.notifier)
-                                      .redoSketch();
-                                  break;
-                              }
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(5),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: selectedTool == tool
-                                    ? AppColors.blueAccent
-                                    : AppColors.transparent,
-                              ),
-
-                              child: Icon(
-                                tool.icon,
-                                color: AppColors.white,
-                                size: 28,
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
+                  toolbar(
+                    const EdgeInsets.symmetric(vertical: 16),
+                    const BoxDecoration(color: AppColors.darkGrey),
+                    0,
+                    0,
+                    0,
                   ),
                 ],
               );
             }
             return Stack(
               children: [
-                SizedBox(
+                const SizedBox(
                   width: double.infinity,
                   height: double.infinity,
                   child: DrawingCanvas(),
                 ),
-
-                Positioned(
-                  bottom: 50,
-                  left: 100,
-                  right: 100,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      color: AppColors.darkGrey,
-                    ),
-
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: CanvasTools.values.map((tool) {
-                        return GestureDetector(
-                          onTap: () async {
-                            ref
-                                .read(canvasProvider.notifier)
-                                .updateCanvasToolSettings(canvasTool: tool);
-
-                            switch (tool) {
-                              case CanvasTools.brush:
-                                if (canvaState.selectedCanvasTool == tool) {
-                                  await PopUps.showBrushPopUp(context: context);
-                                } else {
-                                  ref
-                                      .read(canvasProvider.notifier)
-                                      .updateBrushSettings(
-                                        color: canvaState.selectedBrush.color,
-                                        strokeWidth: canvaState
-                                            .selectedBrush
-                                            .strokeWidth,
-                                      );
-                                }
-
-                                ref
-                                    .read(canvasProvider.notifier)
-                                    .updateCanvasSketchMode(
-                                      sketchMode: CanvasSketchMode.draw,
-                                    );
-
-                                break;
-                              case CanvasTools.eraser:
-                                if (canvaState.selectedCanvasTool == tool) {
-                                  await PopUps.showEraserPopUp(
-                                    context: context,
-                                  );
-                                }
-                                ref
-                                    .read(canvasProvider.notifier)
-                                    .updateCanvasSketchMode(
-                                      sketchMode: CanvasSketchMode.draw,
-                                    );
-                                break;
-                              case CanvasTools.line:
-                                ref
-                                    .read(canvasProvider.notifier)
-                                    .updateCanvasSketchMode(
-                                      sketchMode: CanvasSketchMode.line,
-                                    );
-                                break;
-                              case CanvasTools.rect:
-                                ref
-                                    .read(canvasProvider.notifier)
-                                    .updateCanvasSketchMode(
-                                      sketchMode: CanvasSketchMode.rect,
-                                    );
-                                break;
-                              case CanvasTools.undo:
-                                ref.read(canvasProvider.notifier).undoSketch();
-                                break;
-                              case CanvasTools.redo:
-                                ref.read(canvasProvider.notifier).redoSketch();
-                                break;
-                            }
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(5),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: selectedTool == tool
-                                  ? AppColors.blueAccent
-                                  : AppColors.transparent,
-                            ),
-
-                            child: Icon(
-                              tool.icon,
-                              color: AppColors.white,
-                              size: 28,
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
+                toolbar(
+                  const EdgeInsets.symmetric(vertical: 16),
+                  BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    color: AppColors.darkGrey,
                   ),
+                  50,
+                  100,
+                  100,
                 ),
               ],
             );

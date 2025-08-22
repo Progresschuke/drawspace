@@ -1,9 +1,18 @@
+import 'package:device_preview/device_preview.dart';
 import 'package:drawspace/presentation/views/ui/landing_page.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
-  runApp(ProviderScope(child: const MyApp()));
+  runApp(
+    ProviderScope(
+      child: DevicePreview(
+        enabled: !kReleaseMode,
+        builder: (context) => MyApp(),
+      ),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -13,7 +22,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'DrawSpace',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
