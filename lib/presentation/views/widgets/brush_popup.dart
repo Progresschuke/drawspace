@@ -90,7 +90,18 @@ class BrushPopupWidget extends StatelessWidget {
             Row(
               children: [
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    if (canvasState.selectedBrush.strokeWidth != null &&
+                        canvasState.selectedBrush.strokeWidth! > 1) {
+                      ref
+                          .read(canvasProvider.notifier)
+                          .updateBrushSettings(
+                            strokeWidth:
+                                canvasState.selectedBrush.strokeWidth! - 1,
+                            color: canvasState.selectedBrush.color,
+                          );
+                    }
+                  },
                   icon: Icon(Icons.remove, color: AppColors.white),
                 ),
                 Slider(
@@ -108,7 +119,18 @@ class BrushPopupWidget extends StatelessWidget {
                   },
                 ),
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    if (canvasState.selectedBrush.strokeWidth != null &&
+                        canvasState.selectedBrush.strokeWidth! < 10) {
+                      ref
+                          .read(canvasProvider.notifier)
+                          .updateBrushSettings(
+                            strokeWidth:
+                                canvasState.selectedBrush.strokeWidth! + 1,
+                            color: canvasState.selectedBrush.color,
+                          );
+                    }
+                  },
                   icon: Icon(Icons.add, color: AppColors.white),
                 ),
               ],
