@@ -25,6 +25,16 @@ class CanvasProvider extends StateNotifier<CanvasState> {
   }
 
   void updateBrushSettings({Color? color, double? strokeWidth}) {
+    if (state.selectedCanvasTool == CanvasTools.eraser) {
+      state = state.copyWith(
+        eraserBrush: BrushModel(
+          color: AppColors.white,
+          strokeWidth: strokeWidth,
+        ),
+      );
+      return;
+    }
+
     state = state.copyWith(
       selectedBrush: BrushModel(color: color, strokeWidth: strokeWidth),
     );
@@ -42,10 +52,10 @@ class CanvasProvider extends StateNotifier<CanvasState> {
     state = state.copyWith(selectedEraserType: eraser);
     switch (eraser) {
       case EraserType.area:
-        updateBrushSettings(color: AppColors.white, strokeWidth: 15.0);
+        updateBrushSettings(color: AppColors.white, strokeWidth: 90.0);
         break;
       case EraserType.stroke:
-        updateBrushSettings(color: AppColors.white, strokeWidth: 10);
+        updateBrushSettings(color: AppColors.white, strokeWidth: 20.0);
         break;
 
       case null:
@@ -109,6 +119,7 @@ class CanvasState {
   final List<SketchModel>? allCanvasSketch;
   final List<SketchModel>? redoCanvasSketchList;
   final BrushModel selectedBrush;
+  final BrushModel eraserBrush;
   final EraserType selectedEraserType;
   final CanvasSketchMode selectedSketchMode;
   final CanvasTools selectedCanvasTool;
@@ -116,6 +127,7 @@ class CanvasState {
   CanvasState({
     EraserType? selectedEraserType,
     BrushModel? selectedBrush,
+    BrushModel? eraserBrush,
     CanvasSketchMode? selectedSketchMode,
     CanvasTools? selectedCanvasTool,
     this.currentCanvasSketch,
@@ -123,6 +135,8 @@ class CanvasState {
     this.redoCanvasSketchList,
   }) : selectedBrush =
            selectedBrush ?? BrushModel(color: Colors.black, strokeWidth: 5.0),
+       eraserBrush =
+           eraserBrush ?? BrushModel(color: Colors.white, strokeWidth: 20.0),
        selectedEraserType = selectedEraserType ?? EraserType.stroke,
        selectedSketchMode = selectedSketchMode ?? CanvasSketchMode.draw,
        selectedCanvasTool = selectedCanvasTool ?? CanvasTools.brush;
@@ -132,6 +146,7 @@ class CanvasState {
     List<SketchModel>? allCanvasSketch,
     List<SketchModel>? redoCanvasSketchList,
     BrushModel? selectedBrush,
+    BrushModel? eraserBrush,
     EraserType? selectedEraserType,
     CanvasSketchMode? selectedSketchMode,
     CanvasTools? selectedCanvasTool,
@@ -141,6 +156,7 @@ class CanvasState {
       allCanvasSketch: allCanvasSketch ?? this.allCanvasSketch,
       redoCanvasSketchList: redoCanvasSketchList ?? this.redoCanvasSketchList,
       selectedBrush: selectedBrush ?? this.selectedBrush,
+      eraserBrush: eraserBrush ?? this.eraserBrush,
       selectedEraserType: selectedEraserType ?? this.selectedEraserType,
       selectedSketchMode: selectedSketchMode ?? this.selectedSketchMode,
       selectedCanvasTool: selectedCanvasTool ?? this.selectedCanvasTool,
@@ -149,7 +165,7 @@ class CanvasState {
 
   @override
   String toString() {
-    return 'CanvasState(currentCanvasSketch: $currentCanvasSketch, allCanvasSketch: $allCanvasSketch, redoCanvasSketchList: $redoCanvasSketchList, selectedBrush: $selectedBrush, selectedEraserType: $selectedEraserType, selectedSketchMode: $selectedSketchMode, selectedCanvasTool: $selectedCanvasTool)';
+    return 'CanvasState(currentCanvasSketch: $currentCanvasSketch, allCanvasSketch: $allCanvasSketch, redoCanvasSketchList: $redoCanvasSketchList, selectedBrush: $selectedBrush, eraserBrush: $eraserBrush, selectedEraserType: $selectedEraserType, selectedSketchMode: $selectedSketchMode, selectedCanvasTool: $selectedCanvasTool)';
   }
 
   @override
@@ -160,6 +176,7 @@ class CanvasState {
         listEquals(other.allCanvasSketch, allCanvasSketch) &&
         listEquals(other.redoCanvasSketchList, redoCanvasSketchList) &&
         other.selectedBrush == selectedBrush &&
+        other.eraserBrush == eraserBrush &&
         other.selectedEraserType == selectedEraserType &&
         other.selectedSketchMode == selectedSketchMode &&
         other.selectedCanvasTool == selectedCanvasTool;
@@ -171,6 +188,7 @@ class CanvasState {
         allCanvasSketch.hashCode ^
         redoCanvasSketchList.hashCode ^
         selectedBrush.hashCode ^
+        eraserBrush.hashCode ^
         selectedEraserType.hashCode ^
         selectedSketchMode.hashCode ^
         selectedCanvasTool.hashCode;

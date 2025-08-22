@@ -1,3 +1,4 @@
+import 'package:drawspace/core/enums/enums.dart';
 import 'package:drawspace/core/models/sketch_model.dart';
 import 'package:drawspace/core/painters/canvas_painter.dart';
 import 'package:drawspace/core/providers/canvas_provider.dart';
@@ -21,6 +22,7 @@ class _CurrentSketchCanvasState extends ConsumerState<CurrentSketchCanvas> {
       onPointerDown: (eventDetails) {
         RenderBox box = context.findRenderObject() as RenderBox;
         final offset = box.globalToLocal(eventDetails.position);
+
         final sketch = SketchModel(
           points: [offset],
           sketchMode: canvasState.selectedSketchMode,
@@ -33,10 +35,16 @@ class _CurrentSketchCanvasState extends ConsumerState<CurrentSketchCanvas> {
         List<Offset> points = List.from(
           canvasState.currentCanvasSketch?.points ?? [],
         )..add(offset);
+        final isEraser = canvasState.selectedCanvasTool == CanvasTools.eraser;
+
         final sketch = SketchModel(
           points: points,
-          color: canvasState.selectedBrush.color ?? AppColors.primary,
-          strokeWidth: canvasState.selectedBrush.strokeWidth ?? 5.0,
+          color: isEraser
+              ? canvasState.eraserBrush.color!
+              : canvasState.selectedBrush.color ?? AppColors.primary,
+          strokeWidth: isEraser
+              ? canvasState.eraserBrush.strokeWidth!
+              : canvasState.selectedBrush.strokeWidth ?? 5.0,
           sketchMode: canvasState.selectedSketchMode,
         );
 

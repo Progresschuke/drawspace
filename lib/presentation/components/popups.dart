@@ -3,6 +3,7 @@ import 'package:drawspace/core/painters/doodle_painter.dart';
 import 'package:drawspace/core/providers/canvas_provider.dart';
 import 'package:drawspace/presentation/styles/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,23 +18,32 @@ class PopUps {
     EdgeInsets? padding,
     double? borderRadius,
   }) async {
+    final deviceWidth = MediaQuery.sizeOf(context).width;
     return await showDialog(
       context: context,
       barrierDismissible: barrierDismissible,
       barrierColor: Colors.transparent,
       builder: (innerContext) => Align(
         alignment: alignment,
-        child: Card(
-          color: backgroundColor ?? (AppColors.darkGrey),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(borderRadius ?? 32),
-          ),
-          child: Container(
-            padding: padding ?? EdgeInsets.all(24),
-            width: MediaQuery.sizeOf(context).width * fullScreenWidthRatio,
-            child: child,
-          ),
-        ),
+        child:
+            Card(
+                  color: backgroundColor ?? AppColors.darkGrey,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(borderRadius ?? 32),
+                  ),
+                  child: Container(
+                    padding: padding ?? const EdgeInsets.all(24),
+                    width: deviceWidth * fullScreenWidthRatio,
+                    child: child,
+                  ),
+                )
+                .animate(target: deviceWidth >= 500 ? 1 : 0)
+                .slideY(
+                  begin: deviceWidth >= 500 ? 0.9 : 0.0,
+                  end: deviceWidth >= 500 ? 0.5 : 0.0,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.linear,
+                ),
       ),
     );
   }
@@ -42,12 +52,13 @@ class PopUps {
     double strokeWidth = 2.0;
     final colorPalette = List.from([AppColors.black, AppColors.white])
       ..addAll(Colors.accents);
+
     return await showCanvasPopUp(
       context: context,
       barrierDismissible: true,
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       fullScreenWidthRatio: 0.85,
-      alignment: Alignment(0, 0.5),
+      alignment: Alignment(0, 0.3),
       child: Consumer(
         builder: (context, ref, child) {
           final canvasState = ref.watch(canvasProvider);
@@ -128,7 +139,7 @@ class PopUps {
                   Slider(
                     value: canvasState.selectedBrush.strokeWidth ?? strokeWidth,
                     min: 1.0,
-                    max: 15.0,
+                    max: 10.0,
                     activeColor: AppColors.blueAccent,
                     onChanged: (value) {
                       ref
@@ -179,58 +190,93 @@ class PopUps {
                     )
                     .toList(),
               ),
-              GestureDetector(
-                onTap: () {
-                  Navigator.of(context).pop();
-                  showDialog(
-                    builder: (context) {
-                      return AlertDialog(
-                        title: const Text(
-                          'Pick a color!',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: AppColors.black,
-                            fontWeight: FontWeight.w600,
-                          ),
+              SizedBox(height: 30),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Could not find a color you like?',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.white,
+                          fontWeight: FontWeight.w600,
                         ),
-                        content: SingleChildScrollView(
-                          child: ColorPicker(
-                            pickerColor:
-                                canvasState.selectedBrush.color ??
-                                AppColors.black,
-                            onColorChanged: (color) {
-                              ref
-                                  .read(canvasProvider.notifier)
-                                  .updateBrushSettings(
-                                    color: color,
-                                    strokeWidth:
-                                        canvasState.selectedBrush.strokeWidth,
-                                  );
-                            },
-                          ),
+                      ),
+                      const Text(
+                        'Pick a color!',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: AppColors.blueAccent,
+                          fontWeight: FontWeight.w600,
                         ),
-                        actions: <Widget>[
-                          ElevatedButton(
-                            child: const Text(
-                              'Done',
+                      ),
+                    ],
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+                      await showDialog(
+                        builder: (context) {
+                          return AlertDialog(
+                            backgroundColor: AppColors.darkGrey,
+                            title: const Text(
+                              'Pick a color!',
                               style: TextStyle(
                                 fontSize: 18,
-                                color: AppColors.primary,
+                                color: AppColors.white,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                        ],
+                            content: SingleChildScrollView(
+                              child: ColorPicker(
+                                displayThumbColor: false,
+                                showLabel: false,
+                                pickerColor:
+                                    canvasState.selectedBrush.color ??
+                                    AppColors.black,
+                                onColorChanged: (color) {
+                                  ref
+                                      .read(canvasProvider.notifier)
+                                      .updateBrushSettings(
+                                        color: color,
+                                        strokeWidth: canvasState
+                                            .selectedBrush
+                                            .strokeWidth,
+                                      );
+                                },
+                              ),
+                            ),
+                            actions: <Widget>[
+                              ElevatedButton(
+                                child: const Text(
+                                  'Done',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                        context: context,
                       );
                     },
-                    context: context,
-                  );
-                },
 
-                child: Image.asset('assets/icons/color-wheel.png', height: 70),
+                    child: Image.asset(
+                      'assets/icons/color-wheel.png',
+                      scale: 10,
+                    ),
+                  ),
+                ],
               ),
             ],
           );
