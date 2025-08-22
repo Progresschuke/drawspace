@@ -25,18 +25,17 @@ class _DrawingHomePageState extends ConsumerState<DrawingHomePage> {
         child: LayoutBuilder(
           builder: (context, constraints) {
             final double width = constraints.maxWidth;
-            toolbar(
-              EdgeInsetsGeometry padding,
-              BoxDecoration decoration,
-              double bottom,
-              double left,
-              double right,
-            ) => Positioned(
+            toolbar({
+              required BoxDecoration decoration,
+              required double bottom,
+              required double left,
+              required double right,
+            }) => Positioned(
               bottom: bottom,
               left: left,
               right: right,
               child: Container(
-                padding: padding,
+                padding: const EdgeInsets.symmetric(vertical: 16),
                 decoration: decoration,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -126,11 +125,10 @@ class _DrawingHomePageState extends ConsumerState<DrawingHomePage> {
                     child: DrawingCanvas(),
                   ),
                   toolbar(
-                    const EdgeInsets.symmetric(vertical: 16),
-                    const BoxDecoration(color: AppColors.darkGrey),
-                    0,
-                    0,
-                    0,
+                    decoration: const BoxDecoration(color: AppColors.darkGrey),
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
                   ),
                 ],
               );
@@ -143,14 +141,13 @@ class _DrawingHomePageState extends ConsumerState<DrawingHomePage> {
                   child: DrawingCanvas(),
                 ),
                 toolbar(
-                  const EdgeInsets.symmetric(vertical: 16),
-                  BoxDecoration(
+                  decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(30),
                     color: AppColors.darkGrey,
                   ),
-                  50,
-                  100,
-                  100,
+                  bottom: 50,
+                  left: 100,
+                  right: 100,
                 ),
               ],
             );

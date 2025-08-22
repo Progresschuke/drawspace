@@ -37,7 +37,7 @@ class PopUps {
                 .animate(target: deviceWidth >= 500 ? 1 : 0)
                 .slideY(
                   begin: deviceWidth >= 500 ? 0.9 : 0.0,
-                  end: deviceWidth >= 500 ? 0.2 : 0.0,
+                  end: deviceWidth >= 500 ? 0.4 : 0.0,
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.linear,
                 ),
@@ -69,7 +69,7 @@ class PopUps {
       barrierDismissible: true,
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       fullScreenWidthRatio: 0.85,
-      alignment: Alignment(0, 0.6),
+      alignment: Alignment(0, 0.7),
       child: EraserPopupWidget(),
     );
   }
